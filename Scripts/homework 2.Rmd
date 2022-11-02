@@ -1,0 +1,169 @@
+---
+title: "Homework 2"
+author: "Tony Daza"
+date: "2022-10-13"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Here we go with a bunch of plots. For this we are going to use the nlme package and the Oxboys data for the first two plots. 
+
+Don't ask me what the data is about because I don't know. But without furtherado... the plots
+
+Just kidding, first we need to clean the data. And then the plots.
+
+```{r}
+#install.packages("nlme")
+
+library(needs)
+#We also need tidyverse for ggplot2 and janitor to clean the names
+#Our dataset is in nlme
+needs(tidyverse, janitor, nlme)
+
+#Just a little cleaning
+pd <- Oxboys %>%
+  clean_names() %>%
+  mutate(subject = factor(subject),
+         occasion = factor(occasion)) %>%
+  filter(subject == "10" | subject == "4" | subject == "7") %>%
+  as_tibble()
+```
+
+Great, now that the data is loaded and cleaned, we will create "Plot 1"
+
+```{r}
+#Plot 1
+##A facet wrapped line plot 
+
+pd %>% ggplot(aes(x=age, y=height)) +
+  geom_line()+
+  theme_minimal()+
+  labs(x="age", y= "height", title = "Plot 1")+
+  facet_wrap(~subject)
+  
+
+```
+
+And so we move on to "Plot 2" which is a line graph of age and height by participant but unlike "Plot 1" it is not faceted but instead it is colored by participant. 
+
+```{r}
+#A line plot but not facet wrapped
+pd %>% ggplot(aes(x=age, y=height)) +
+  geom_line(aes(color = subject))+
+  theme_minimal()+
+  labs(x="age", y= "height", title = "Plot 2")
+```
+
+
+That concludes our examination of the Oxboys dataset. Now we shall look at the mtcars data set from base R.
+
+It is about cars and miles per gallon (mpg).
+
+Plot 3 will be a scatterplot of mpg and drat (Unsure what exactly this variable is. I would need to examine the dataset)
+
+```{r}
+#scatter plot of mpg and drat
+mtcars %>%
+  ggplot(aes(x=drat, y = mpg))+
+  geom_point()+
+  theme_minimal()+
+  labs(title = "Plot 3")
+
+```
+
+Plot 4 just layers on a trend line with a confidence interval shaded on. Otherwise we are still examining a scatterplot of mpg and drat.
+
+```{r}
+#Plot 4. Scatterplot with trendline
+mtcars %>%
+  ggplot(aes(x=drat, y = mpg))+
+  geom_point()+
+  geom_smooth()+
+  theme_minimal()+
+  labs(title = "Plot 4")
+
+```
+
+I am guessing you are getting bored of these graphs by now. Me too. But here is another scatterplot for you. Except this one is facet wrapped by a binary variable. So here is Plot 5 for you.
+
+```{r}
+#Plot 5 Scatter plot that is facet wrapped
+head(mtcars)
+
+```
+Based on a quick peak, two variables are binary: vs and am
+Let's start by wrapping using the 'vs' variable
+
+```{r}
+#Plot 5
+mtcars %>%
+  ggplot(aes(x=drat, y = mpg))+
+  geom_point()+
+  geom_smooth(method = 'lm')+
+  theme_minimal()+
+  labs(title = "Plot 5")+
+  facet_wrap(~vs)
+
+```
+
+Oh hey it worked. I did change the method to a linear model from the default but now it looks right. Quite a large confidence interval though. Maybe not the best fitting method.
+
+Well now on to plot 6. 
+
+Sticking with mpg vs drat but now grouping by cylinders
+
+```{r}
+#Plot 6, scatter plot but grouping by cylinders
+ggplot(mtcars, aes(x=drat, y = mpg, color = factor(cyl)))+
+  geom_point()+
+  geom_smooth(se = FALSE, method = 'lm')+
+  theme_minimal()+
+  labs(title = "Plot 6")
+
+```
+
+And now for my final dataset: Orange.
+
+Plot 7, a line graph with pretty colors
+
+But first, I should examine this Orange data
+
+```{r}
+#examining orange data
+head(Orange)
+```
+
+Seems like it is really just circumference of the tree by the age
+
+Plot 7
+
+```{r}
+
+#Step 2: Plot 7
+Orange %>%
+  ggplot(aes(x=age, y = circumference))+
+  geom_line(aes(color=Tree))+
+  theme_minimal()+
+  labs(title = "Plot 7")
+
+```
+
+Great, now let's make this look better... add some labels and a title and maybe a trendline too
+
+
+```{r}
+#Plot 8
+Orange %>%
+  ggplot(aes(x=age, y = circumference))+
+  geom_point(aes(color=Tree))+
+  theme_minimal()+
+  geom_smooth(method = 'lm', se = FALSE, color = 'gray')+
+  labs(title = "Orange Tree Growth", subtitle = "Gray line displays a linear model fit to the data", x = "Age of the Tree (In days)", y = "Circumference of the Trunk (In mm)")
+
+```
+
+The END
+

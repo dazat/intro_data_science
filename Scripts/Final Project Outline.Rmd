@@ -1,0 +1,125 @@
+---
+title: "Final Project Outline"
+author: "Tony Daza"
+date: "2022-10-23"
+output: html_document
+---
+EDLD 651 
+
+Fall 2022 
+
+Alex Newson, Deanna Strayer, Sabreen NoorAli, Seulbi Bailey Lee, Tony Daza 
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Title: Mother’s Perspective on Expressive Vocabulary Skills  
+
+Research Question: Do the type of living situation and education status predict a Latin American mother’s knowledge of the expressive vocabulary skills of her 4-month-old child? 
+
+
+```{r, echo = TRUE}
+library(needs)
+needs(rio, here, tidyverse, janitor, psych, haven)
+
+mom_vocab <- import(here("~/Desktop/intro_data_science/Data/Mothers_vocab_data.sav")) %>%
+  janitor::clean_names() %>%
+  round(digits = 4)
+
+head(mom_vocab, n = 5)
+
+```
+
+Data: The data is from 95 Spanish Language mothers who have children from 18-24 months old. Data It is based on a survey with a series of nine questions related to demographic information (i.e., educational status, economic status, marital status), were presented. Following this, they were given a list of words and they were asked to indicate “yes” or “no” if the child can say (not understand) the word. Ten sets of words were presented at a time. Each set had 10 words that consisted of nouns, verbs, adjectives, pronouns, social forms, sound effects, or other linguistic categories.   
+
+```{r, echo = TRUE}
+
+mom_vocab <- mom_vocab %>%
+  characterize('home', 'ed_status')
+#For the Home variable: (2 options)
+### 2 corresponds to Urban - "Lives 5 miles within town"
+### 1 corresponds to Rural - "Lives 5 miles outside of town"
+
+#For the education status variable: (8 options)
+### 1 corresponds to "No schooling"
+### 2 corresponds to "Some schooling but no high school diploma"
+### 3 corresponds to "High school diploma, GED, or equivalent"
+### 4 corresponds to "Vocational training or some college, but no degree"
+### 5 corresponds to "Associate's degree"
+### 6 corresponds to "Bachelor's degree"
+### 7 corresponds to "Some graduate school, but no degree"
+### 8 corresponds to "Master's Doctoral, Medical, Law, or other professional degree"
+
+
+mom_vocab %>%
+  select('ed_status')%>%
+  distinct(ed_status) %>%
+  arrange(ed_status) %>%
+  characterize('ed_status')
+
+```
+
+Independent Variables:  
+
+ - Mother educational status 
+
+ - Mother-child living situation 
+
+Dependent variable: 
+
+ - Spanish McArthur CDI Scores
+    - These scores are measured using percentage of words correct for nouns, verbs, and adjectives.
+
+```{r, echo = TRUE}
+describe(mom_vocab[,-1], ranges = FALSE, trim = FALSE)
+
+```
+Descriptive statistics don't make much sense for the home and education status variables in this case as they are coded numerically for character values. Instead, visualizing the data may be more helpful so here is a quick glance at plots for the distribution of the two independent variables.
+
+```{r, echo =TRUE}
+# First here is the distribution of home locations or "living situation"
+## There are only two options; Urban and Rural
+
+mom_vocab %>%
+  select('home') %>%
+  ggplot(aes(x = home)) +
+  geom_bar(aes(fill = home), color = "black", show.legend = FALSE) +
+  theme_minimal() +
+  labs(x = "Home", y = "Count", 
+       title = "Count of Home Environment", 
+       subtitle = "From the Mother's Vocabulary Data",
+       fill = NULL)
+
+
+# Next here is a look at the distribution of mother's educational status
+## There are 8 categories which are listed above
+
+mom_vocab_ord <- mom_vocab %>% 
+  mutate(ed_status = factor(ed_status, levels = c('"No Schooling"',
+                                                  '"Some Schooling, but no high school diploma"',
+                                                  '"High school diploma, GED, or equivalent"',
+                                                  '"Vocational training or some college, but no degree"',
+                                                  "Associate's Degree",
+                                                  "Bachelor's Degree",
+                                                  "Some graduate school, but no degree",
+                                                  "Master's, Doctoral, Medical, Law, or other professional degree")))
+
+mom_vocab_ord %>%
+  select("ed_status") %>%
+  ggplot(aes(x = ed_status)) + 
+  geom_bar(aes(fill = ed_status), color = "black",
+           show.legend = FALSE) + 
+  theme_minimal() + 
+  labs(x = "Education Status", y = "Count",
+       title = "Count of Education Status of Mother",
+       subtitle = "From the Mother's Vocabulary Data",
+       fill = NULL) +
+  scale_color_viridis_d() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 7))
+
+```
+
+

@@ -1,0 +1,168 @@
+---
+title: "Homework 5"
+author: "Tony Daza"
+date: "2022-10-27"
+output: html_document
+highlight: espresso
+
+---
+# Question 1
+The YAML:
+Change the highlight to Espresso
+
+
+Homework 5, which is all about R markdown.
+
+
+# Question 2
+The set up:
+You can't see it but it is there
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE,
+                      eval = TRUE,
+                      fig.height = 8.5,
+                      fig.width = 6.5)
+library(needs)
+needs(tidyverse, rio, dplyr, here, readr, janitor)
+
+```
+
+# Question 3
+Importing Data and Creating graphs:
+Data from Ecls K Sample
+
+
+Looking at t2m scale vs t1m scale by race and school type
+t1mscale = T1 Math IRT scale score
+t2mscale = T2 Math IRT scale score
+
+
+```{r, }
+eclsk <- import(here("Data/ecls-k_samp.sav")) %>%
+  janitor::clean_names()
+
+eclsk %>%
+  select('ethnic')%>%
+  distinct(ethnic) %>%
+  arrange(ethnic) %>%
+  characterize('ethnic')
+
+# 1 is White, Non-Hispanic
+# 2 is Black, Non-Hispanic
+# 3 is Hispanic, Race Specified
+# 4 is Hispanic, Race Not Specified
+# 5 is Asian
+# 6 is Native Hawaiian, Other Pacific Islander
+# 7 is American Indian or Alaska Native
+# 8 is More than one race, Non Hispanic
+
+eclsk <- eclsk %>%
+  characterize('school_type')
+
+# 0 is Public
+# 1 is Private
+
+eclsk %>%
+  select(t1mscale, t2mscale, school_type, ethnic) %>%
+  filter(ethnic == "BLACK OR AFRICAN AMERICAN, NON-HISPANIC"| 
+           ethnic == "HISPANIC, RACE NOT SPECIFIED" | 
+           ethnic == "WHITE, NON-HISPANIC" | 
+           ethnic == "HISPANIC, RACE SPECIFIED") %>%
+  ggplot(aes(x = t1mscale, y = t2mscale), na.rm = TRUE) +
+  geom_point(color = "black") +
+  geom_smooth(aes(color = school_type), method = "lm") +
+  facet_wrap(~ethnic) +
+  theme_minimal()
+
+```
+
+
+As you can see, there are more white, non hispanic students than minority students in this sample and there scores tended to be higher than the Hispanic and Black students.
+
+
+# Question 4
+Mean and Standard Deviation: 
+Mean & STD for T2Mscale
+
+```{r}
+t1mean <- mean(eclsk$t1mscale, na.rm = TRUE)
+t1sd <- sd(eclsk$t1mscale, na.rm = TRUE)
+
+t2mean <- mean(eclsk$t2mscale, na.rm = TRUE)
+t2sd <- sd(eclsk$t2mscale, na.rm = TRUE)
+
+
+```
+
+# Question 5
+Mean and Standard Deviation Continued:
+
+T1 Mean/Std and T2 Mean/Std  
+
+
+T1 Mean score = `r t1mean`  
+
+T1 standard deviation score = `r t1sd`  
+
+T2 Mean score = `r t1mean`  
+
+T2 standard deviation score = `r t2sd`  
+
+Difference in scores = `r t2mean - t1mean`  
+
+*i.e. the average gain*
+
+
+# Question 6
+Loading Data Tutorial:
+
+
+So let's say you are *new* to **R studio** and need to **load** in some data. *Follow along* to find out how to load in your data.
+
+**Step 1**
+Save data to your drive or computer
+*Remember where you saved your data*
+
+**Step 2**
+Load **rio** to your console
+
+\*You can load a package using the library( ) function
+
+\# You will have to install rio first if it is not yet added
+
+**Step 3**
+Use the **import ()** function in rio to read in your data
+
+\*when reading in the data you will need to copy the file pathway exactly and place it in quotes
+
+**Step 4**
+Save in your data using a nickname
+
+You will need to use the function **<-** to rename a data set
+
+**Step 5**
+Look if your data was saved by calling the new name of the data set
+
+
+For example: 
+## pretend our data set is called Halloween and it is a csv file
+
+library(rio)
+Hallwn <- import("Halloween.csv")
+
+
+
+```{r, echo=TRUE, eval = FALSE}
+
+library(rio)
+penguins <- import("Data/Penguins.csv")
+penguins
+
+
+```
+
+In this example the Penguins data is saved in a folder called "Data"
+Hence the pathway to the dataset is "Data/Penguins.csv"

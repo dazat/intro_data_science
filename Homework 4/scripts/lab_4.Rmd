@@ -1,0 +1,316 @@
+---
+title: "Homework 4"
+author: "Tony Daza"
+date: "2022-10-20"
+output: html_document
+---
+
+
+Here we go again. Let the coding begin.
+
+  *Note, I accidentally named the project homework 4 instead of lab 4. I am sorry.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Step 1:
+ - Load the required packages
+
+This week we are focusing on data wrangling.
+
+"Dplyr" is the package that we will use for data wrangling functions
+
+"Janitor" helps with cleaning data, it may not be needed, but good to have.
+
+"Tidyverse" includes ggplot2 as well as other packages and functions such as piping that are used throughout the code.
+
+"Here" helps with the initial importing of data.
+
+"Readr" is helpful for reading in data but Rio's import function is preferred for it's easy of use to import different types of files.
+
+"Lahman" is a package with the data set we are using with all the baseball teams. The data set is called Teams
+
+```{r, echo = TRUE}
+library(needs)
+needs(tidyverse, dplyr, janitor, here, readr, rio, Lahman)
+view(Teams)
+
+```
+
+I am going to use the Minnesota Twins since I moved to Oregon from Minnesota. First, I will create a separate data set with only the twins data for year, wins, losses, runs scored, and runs allowed (Corresponding to name, yearID, W, L, R, RA)
+
+```{r, echo = TRUE}
+Twins <- Teams %>%
+  filter(name == "Minnesota Twins", yearID >= 1980) %>%
+  select(name, yearID, W, L, R, RA)
+Twins
+
+```
+
+
+Cool! It worked!
+
+Now we need to create a new variable that is the win percentage for the twins. 
+
+If you are a twins fan you may want to skip this section
+
+```{r, echo = TRUE}
+Twins <- Twins %>%
+  mutate(pwin = (W/(W+L))) %>%
+  arrange(pwin)
+Twins
+
+```
+Above is a list of the record of Twins seasons by year in ascending order by win percentage. 2016 was a rough year.
+
+But let's look at the bright side and see the best years first by ordering the years in descending order by win percentage.
+
+```{r, echo = TRUE}
+Twins %>%
+  arrange(desc(pwin))
+
+```
+
+Wow 2019 was a good year for them!
+
+Well that was fun. Let's see the mean and standard deviation for win percentage
+
+```{r, echo = TRUE}
+Twins %>%
+  summarise(mean(pwin),sd(pwin))
+
+```
+It appears that the mean win percentage is about 48% with a standard deviation of about 7.14%. I am not sure if that is good or not, but now I know.
+
+
+That was child's play. Now we look at the full dataset.
+
+```{r, echo = TRUE}
+Teams <- Teams %>%
+  select(name, yearID, W, L) %>%
+  mutate(pwin = (W/(W+L))) %>%
+  arrange(desc(pwin))
+  
+  
+
+head(Teams, n = 10)
+
+```
+Above you can see the top ten seasons by win percentage over the years. 
+
+1875 was an unforgettable year for the Boston Red Stockings.
+
+
+Finally, to round out our baseball data. Below you will find a graph of the Detroit Tigers, The New York Yankees, and the San Diego Padres win percentage over the years.
+
+```{r, echo= TRUE}
+team_graph <- Teams %>%
+  filter(name == "Detroit Tigers" | name == "New York Yankees" | name == "San Diego Padres", yearID >= 1900) %>%
+  select(name, yearID, pwin) %>%
+  ggplot(aes(x = yearID, y = pwin)) +
+  geom_line(aes(color = name))+
+  theme_minimal() +
+  labs(x = "year_id", y = "w_pct", color = "Team")
+team_graph
+
+
+```
+ 
+ 
+  *This does look slightly different than the example as there is an extra year or two of more recent data. I can remove those data points if needed
+
+I hope you enjoyed our dive into baseball. We will now move on to talking about red blood cell counts and sports
+
+
+```{r, echo = TRUE}
+needs(readxl, readr)
+ais <- read_excel(here("~/Desktop/Homework 4/data/ais.xlsx"), skip = 15)
+head(ais)
+
+```
+
+Above is a peak at the AIS data set.We will come back to this one in a second.
+
+```{r, echo = TRUE}
+star <- import(here("~/Desktop/Homework 4/data/star.csv"))
+head(star, n = 10)
+
+```
+Here is a look at the Star Data set
+
+```{r, echo = TRUE}
+sesame_st <- import(here("~/Desktop/Homework 4/data/sesame13.sav")) %>%
+  janitor::clean_names()
+head(sesame_st, n = 10)
+
+```
+Finally above is a peak at the sesame 13 data set.
+
+
+And now back to the blood cells. Below is the average red blood cell count and average BMI by sport.
+
+```{r, echo = TRUE}
+AIS <- ais %>%
+  select(rcc, bmi, sport) %>%
+  group_by(sport) %>%
+  summarise(avg_rcc = mean(rcc), 
+            avg_bmi = mean(bmi))
+AIS
+
+export(AIS, "AIS_sport.xlsx")
+
+export(AIS, "AIS_sport.sav")
+
+```
+
+Moving on. Let's look at the Sesame data and see if the average age of females was higher in school or at home.
+
+```{r, echo = TRUE}
+sesame_st %>%
+  characterize("setting") %>%
+  group_by(setting) %>%
+  summarise(mean_age = mean(age))
+  
+
+```
+The home group had a lower average age in months compared to the school group.
+
+
+Finally let's look at the Star data
+First we will look at the data using str() which will tell us that there are 12 variables (columns) and 5748 observations (rows)
+
+
+```{r, echo = TRUE}
+needs(psych)
+str(star)
+
+```
+
+But personally I like the describe function from the psych package because it also gives the standard deviation and mean plus some other descriptive statistics.
+
+
+```{r, echo = TRUE}
+describe(star)
+```
+
+The next step is to remove the outliers in this case data that is 3 standard deviations above or below the mean
+
+```{r, echo = TRUE}
+star %>%
+  characterize() %>%
+  select(tmathss) %>%
+  mutate(lower = (mean(tmathss) - sd(tmathss, na.rm = TRUE)*3)) %>%
+  arrange(tmathss) %>%
+  head(star, n = 5)
+
+star %>%
+  characterize() %>%
+  select(tmathss) %>%
+  mutate(upper = (mean(tmathss) + sd(tmathss, na.rm = TRUE)*3)) %>%
+  arrange(desc(tmathss)) %>%
+  head(star, n = 5)
+```
+These pieces show the lowest 5 and highest 5 scores as well as the cut off for 3 standard deviations above or below the mean.
+
+```{r, echo = TRUE}
+star %>%
+  summarise(sd_low = (mean(tmathss) - (sd(tmathss)*3)),
+         sd_high = (mean(tmathss) + (sd(tmathss*3))))
+```
+Here we can see the cut offs for the scores
+
+```{r, echo = TRUE}
+star_norm <- star %>%
+  filter(tmathss < 628.9626, 
+         tmathss > 342.3335)
+head(star_norm)
+
+```
+
+That was a bit more challenging, but after some computations the values for 3 standard deviations above for the math score was 628.96 and 3 standard deviations below for math score was 342. 
+
+After filtering for outliers, 5 observations were removed from the lower end of the data set.
+
+Now for the more challenging part. I will standardized the math and reading scores. 
+
+```{r, echo = TRUE}
+star_stand <- star %>%
+  select(tmathss, treadss) %>%
+  mutate(tmathss = (tmathss - mean(tmathss))/sd(tmathss),
+         treadss = (treadss - mean(treadss))/sd(treadss))
+head(star_stand)
+
+star_stand_means <- star_stand %>%
+  summarise(mean(tmathss),
+            sd(tmathss),
+            mean(treadss),
+            sd(treadss)) %>%
+  round(digits = 3)
+star_stand_means
+         
+
+```
+
+Looks like it worked though there was a rounding error that prevented the mean from showing as zero, but the means of the standardized scores are essentially zero and with a little rounding it shows as zero.
+
+```{r, echo = TRUE}
+star_stand <- star %>%
+  select(tmathss, treadss, sex, frl) %>%
+  mutate(tmathss = (tmathss - mean(tmathss))/sd(tmathss),
+         treadss = (treadss - mean(treadss))/sd(treadss))
+
+star_stand_means_sex_frl <- star_stand %>%
+  characterize() %>%
+  group_by(sex, frl) %>%
+  summarise(mean(tmathss),
+            sd(tmathss),
+            mean(treadss),
+            sd(treadss))
+star_stand_means_sex_frl
+
+```
+
+Above is a summary of the mean and sd of the standardized math and reading scores by sex and free and reduced price lunch status.
+
+Based on this it looks like boys who do not receive frp lunch had  math and read scores higher than boys who did receive frp lunch. 
+
+The difference was even more pronounced for girls who received frp lunch and girls who did not. With girls without frp lunch having higher math and reading scores on average.
+
+There appears to be an interaction by gender with frl status being larger for girls than boys but I am not sure if it is significant without running further analyses.
+
+
+
+At this point you can stop reading but I am curious if I can try to examine the data a little further.
+
+```{r, echo = TRUE}
+needs(MBESS, lm.beta)
+cor(x = star_stand$tmathss, y = star_stand$treadss)
+#Correlation between math and reading scores is 0.71 which is expected that they are strongly correlated in a positive direction
+
+star_stand %>%
+  ggplot(aes(x = treadss, color = frl)) +
+  geom_bar(position = "dodge") + 
+  facet_wrap(~sex)+
+  theme_minimal()+
+  labs(title = "Reading scores by Sex with FRP", x= "Standardized reading score", y = "Count", color = "FRP Lunch Status")+
+  scale_color_viridis_d(option = "plasma")
+#Standardized Reading scores by FRP Lunch status and sex distribution
+
+star_stand %>%
+  ggplot(aes(x = tmathss, color = frl)) +
+  geom_bar(position = "dodge") + 
+  facet_wrap(~sex)+
+  theme_minimal()+
+  labs(title = "Math scores by Sex with FRP", x= "Standardized Math score", y = "Count", color = "FRP Lunch Status")+
+  scale_color_viridis_d()
+#Standardized Math scores by FRP Lunch Status and sex distribution
+
+
+
+```
+
+It is clear from these graphs that there is a difference between the distributions of reading and math scores for students receiving FRP lunch and a smaller differences between boys and girls.
+
+Perhaps if I have more time I will examine the exact differences.

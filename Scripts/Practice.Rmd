@@ -1,0 +1,52 @@
+---
+title: "My First"
+author: "Tony Daza"
+date: "2022-10-05"
+output: html_document
+---
+Above is the YAML (You can't see the code but it is there)
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+require(needs)
+needs(here, rio, tidyverse, janitor, readr, skimr, ggplot2)
+penguins <- read.csv(here("data/Penguins.csv")) %>%
+  as.tibble() %>%
+  janitor::clean_names()
+view(penguins)
+str(penguins)
+```
+We can use two different functions to count and filter data
+First we can use count but we can also use tabyl
+
+
+```{r}
+
+penguins %>%
+  count(species)
+penguins %>%
+  tabyl(species)
+```
+
+We can then use the filter function and the select and arrange functions to make everything look nicer.
+
+So this table shows us the Adelie penguins with a bill length longer than 40 mm and arranges them by bill length. The table shows the island of the penguin, the bill length in mm, and the body mass in gram
+
+```{r}
+penguins %>%
+  filter(species == "Adelie",
+         bill_length_mm > 40) %>%
+  select(island, bill_length_mm, body_mass_g) %>%
+  arrange(bill_length_mm)
+```
+
+Of course we probably want to know a little more about the penguins too.
+
+Let's look at a histogram of the weights and the bill lengths of our penguins
+
+```{r}
+hist(penguins$bill_length_mm, xlab = "Bill Length (mm)", col = "blue", main = paste("Histogram of Penguin Bill Lengths (mm)"))
+
+hist(penguins$body_mass_g, xlab = "Body Mass (g)", col = "green", main = paste("Histogram of Penguin Body Mass (g)"))
+```

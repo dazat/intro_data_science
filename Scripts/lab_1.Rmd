@@ -1,0 +1,80 @@
+---
+title: "lab_1"
+author: "Tony Daza"
+date: "2022-10-07"
+output: html_document
+---
+This is my Homework 1 for Intro to Data Science by Tony Daza
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(needs)
+needs(tidyverse, rio, here, janitor, haven, psych, dplyr)
+
+sesame13 <- import(here("Data/sesame13.sav")) %>%
+  janitor::clean_names()
+
+star <- read_csv(here("Data/star.csv")) %>% janitor::clean_names()
+
+```
+
+Apparently we also want to look at ggplot2 quickly. The mpg data set is pre-loaded in r. Below is a scatter plot of highway mpg by "displ" and another scatter plot of cylinders and city mpg
+
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) + geom_point(col="gray70")
+```
+
+Now before I can make another scatter plot I need to check what the variables are in this data set.
+
+```{r}
+head(mpg)
+```
+
+And now another scatter plot of cylinders and city mpg
+
+```{r}
+ggplot(mpg, aes(x = cyl, y = cty)) + geom_point(col = "gray70")
+
+```
+
+Cool beans. Now we will continue with these data sets we imported.
+
+This is the first 15 rows of the diamonds data set
+
+```{r}
+head(diamonds, 15)
+```
+
+This is the last 6 rows of the diamonds data set
+
+```{r}
+
+tail(diamonds)
+```
+
+This is the dimensions of the diamonds data set.
+
+```{r}
+str(diamonds)
+```
+
+But personally I like this view better which you get using the describe function from the psych package.
+
+```{r}
+describe(diamonds)
+```
+
+Here is a look at the different color types of diamonds.
+
+```{r}
+diamonds %>%
+  count(diamonds$color)
+```
+
+Here is the code but without the piping.
+
+```{r}
+count(diamonds, color)
+```
+
+The END!

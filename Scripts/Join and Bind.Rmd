@@ -1,0 +1,81 @@
+---
+title: "Joining Data"
+author: "Tony Daza"
+date: "2022-11-09"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+How to join data sets:  
+
+Binding:
+- bind_rows  
++ What we will use most often  
+
+- bind_cols  
++ Can be dangerous if data rows are not in the same order  
+
+2 types  
+- Mutating join  
+- Filter join  
+
+Keys:
+- For example Student ID  
++ Let's us know if data are lined up  
+It may be more than one varaible across multiple columns  
+
+Types of Keys:  
+- Primary keys  
+  + Used in your data set  
+- Foreign Keys  
+  + Found in your data set but not used for your dataset  
+  
+\* For .sav files the characterize( ) function makes the numeric labels characters if that information is present in the data  
+
+Verifying the key:  
+Use the count() function to ensure there is one key value for every row. There should not be repeats  
+
+We can order them in descending order or filter for values of n greater then 1 will allow us to search for duplicates  
+
+We can also use this in combination.
+``` {r}
+#count(year, percentile) %>%
+#filter(n > 1)
+
+```
+
+
+What if we still can't find a key?  
+- We can always use the row ID as the key if we know each entry is a unique data point  
+  + This is called a surrogate key  
+  
+rowid_to_column() function in tidyverse will take the row id and create an id column  
+
+#Joining
+
+Types of Joining:  
+- left_join  
+  + Keep all the data on the left of dataset, drop non-matching (I.e. the dataset on the left of the function)  
+- right_join  
+  + Keep all data on the right of dataset, drop non-matching  
+  
+- inner_join  
+  + Keeps only the matching data  
+- full_join  
+  + Keeps all of the data and adds NA values where data is missing  
+  
+\# case_when() can be helpful for recoding but can be tedious  
+
+
+#Summary Data
+
+Adding summary data into the dataset  
+
+
+
+
+

@@ -134,14 +134,14 @@ head(ais)
 Above is a peak at the AIS data set.We will come back to this one in a second.
 
 ```{r, echo = TRUE}
-star <- import(here("~/Desktop/Homework 4/data/star.csv"))
+star <- import(here("Data/star.csv"))
 head(star, n = 10)
 
 ```
 Here is a look at the Star Data set
 
 ```{r, echo = TRUE}
-sesame_st <- import(here("~/Desktop/Homework 4/data/sesame13.sav")) %>%
+sesame_st <- import(here("Data/sesame13.sav")) %>%
   janitor::clean_names()
 head(sesame_st, n = 10)
 

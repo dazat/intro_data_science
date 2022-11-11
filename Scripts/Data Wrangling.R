@@ -29,6 +29,17 @@ needs(tidyverse, fivethirtyeight, janitor)
 #Data set from fivethirtyeight
 college_grad_students %>%
   select(major_code, grad_total, grad_sample_size, everything())
+str(college_grad_students)
+
+college_grad_short <- college_grad_students %>%
+  select(major_code, grad_total, grad_sample_size, grad_employed, 
+         grad_employed_fulltime_yearround, grad_unemployed,
+         grad_unemployment_rate)
+
+
+College_cor <- cor(x = college_grad_short, y = NULL, use = "everything") %>%
+  round(digits =2)
+College_cor
 
 #Starts with refers to column titles
 college_grad_students %>%
